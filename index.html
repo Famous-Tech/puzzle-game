@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Un jeu de puzzle immersif avec un thème de hacking et des modes variés.">
+    <meta name="author" content="Votre Nom">
+    <meta name="keywords" content="jeu, puzzle, hacking, HTML, CSS, JavaScript">
+    <title>Jeu de Puzzle Hacker</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jeu de Puzzle Hacker</h1>
+            <div class="settings">
+                <button id="settings-btn">Paramètres</button>
+                <div id="settings-menu" class="hidden">
+                    <select id="mode-selector">
+                        <option value="images">Images</option>
+                        <option value="mots">Mots</option>
+                        <option value="theme">Thème</option>
+                    </select>
+                    <select id="size-selector">
+                        <option value="2">2x2</option>
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                        <option value="5">5x5</option>
+                        <option value="6">6x6</option>
+                        <option value="7">7x7</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div id="puzzle-area"></div>
+            <div id="timer">Temps: 00:00</div>
+            <div id="best-time">Meilleur Temps: N/A</div>
+        </main>
+        <footer>
+            <button id="save-game">Sauvegarder</button>
+            <button id="load-game">Charger</button>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+  </html>
