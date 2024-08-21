@@ -1,0 +1,30 @@
+name: Deploy Node.js Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18' # Spécifiez la version de Node.js que vous utilisez
+
+    - name: Install dependencies
+      run: npm install express body-parser cors sharp fs path && npm install 
+
+    - name: Start server
+      run: node server.js
+      env:
+        PORT: 3000
