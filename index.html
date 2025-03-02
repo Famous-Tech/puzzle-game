@@ -3,46 +3,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Un jeu de puzzle immersif avec un thème de hacking et des modes variés.">
-    <meta name="author" content="FAMOUS-TECH">
-    <meta name="keywords" content="jeu, puzzle, hacking, HTML, CSS, JavaScript, FAMOUS-TECH, hacking puzzle">
-    <title>Hacker-puzzle</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css">
+    <title>Hacker Cipher Challenge</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --terminal-color: #0f0;
+            --error-color: #f00;
+            --highlight-color: #00ff9d;
+            --box-color: #111;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--terminal-color);
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 1px solid var(--terminal-color);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        h1, h2, h3 {
+            color: var(--highlight-color);
+        }
+        
+        .terminal {
+            background-color: var(--box-color);
+            border: 1px solid var(--terminal-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .terminal::before {
+            content: "> ";
+            color: var(--terminal-color);
+        }
+        
+        .terminal-output {
+            min-height: 150px;
+            white-space: pre-wrap;
+            width: 100%;
+        }
+        
+        input {
+            background-color: var(--box-color);
+            border: 1px solid var(--terminal-color);
+            color: var(--terminal-color);
+            font-family: 'Courier New', monospace;
+            padding: 8px;
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background-color: var(--box-color);
+            color: var(--terminal-color);
+            border: 1px solid var(--terminal-color);
+            font-family: 'Courier New', monospace;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--terminal-color);
+            color: var(--bg-color);
+        }
+        
+        .challenge-box {
+            background-color: var(--box-color);
+            border: 1px solid var(--terminal-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .cipher-text {
+            letter-spacing: 1px;
+            line-height: 1.8;
+            overflow-wrap: break-word;
+        }
+        
+        .hint {
+            color: #888;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: var(--box-color);
+            border: 1px solid var(--terminal-color);
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--terminal-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .timer {
+            text-align: right;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        .success-flash {
+            animation: success-flash 1s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes success-flash {
+            0%, 100% { background-color: var(--box-color); }
+            50% { background-color: var(--highlight-color); }
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            opacity: 0.05;
+        }
+        
+        #level-display {
+            float: right;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    
     <div class="container">
         <header>
-            <h1>Jeu de Puzzle Hacker</h1>
-            <div class="settings">
-                <button id="settings-btn">Paramètres</button>
-                <div id="settings-menu" class="hidden">
-                    <select id="mode-selector">
-                        <option value="images">Images</option>
-                        <option value="mots">Mots</option>
-                        <option value="theme">Thème</option>
-                    </select>
-                    <select id="size-selector">
-                        <option value="2">2x2</option>
-                        <option value="3">3x3</option>
-                        <option value="4">4x4</option>
-                        <option value="5">5x5</option>
-                        <option value="6">6x6</option>
-                        <option value="7">7x7</option>
-                    </select>
-                </div>
-            </div>
+            <h1>HACKER CIPHER CHALLENGE</h1>
+            <p>Déchiffrez les codes pour avancer au niveau suivant</p>
         </header>
-        <main>
-            <div id="puzzle-area"></div>
-            <div id="timer">Temps: 00:00</div>
-            <div id="best-time">Meilleur Temps: N/A</div>
-        </main>
-        <footer>
-            <button id="save-game">Sauvegarder</button>
-            <button id="load-game">Charger</button>
-        </footer>
+        
+        <div id="level-display">Niveau: <span id="current-level">1</span>/5</div>
+        
+        <div class="timer">Temps: <span id="time-display">00:00</span></div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress-indicator"></div>
+        </div>
+        
+        <div class="terminal">
+            <div class="terminal-output" id="terminal-output">Initialisation du système de déchiffrement...
+Connexion au serveur sécurisé...
+Accès autorisé.
+------------------------
+Bienvenue dans le défi de déchiffrement.
+Résolvez chaque niveau pour accéder aux données cryptées.
+Bonne chance, hacker.
+------------------------</div>
+        </div>
+        
+        <div id="level-1" class="challenge-box">
+            <h2>Niveau 1: Déchiffrement Basique</h2>
+            <p>Déchiffrez le message suivant (décalage Caesar):</p>
+            <div class="cipher-text" id="cipher-1">QNVFT LFJ NLHPWJ FY IJHMNKKWFSY HJ RJXXFLJ</div>
+            <div class="hint">Indice: Chaque lettre est décalée de 5 positions dans l'alphabet.</div>
+            <input type="text" id="answer-1" placeholder="Entrez votre réponse ici...">
+            <button onclick="checkAnswer(1)">Soumettre</button>
+        </div>
+        
+        <div id="level-2" class="challenge-box hidden">
+            <h2>Niveau 2: Code Binaire</h2>
+            <p>Convertissez ce code binaire en texte:</p>
+            <div class="cipher-text" id="cipher-2">01001100 01000101 00100000 01000011 01001111 01000100 01000101 00100000 01000101 01010011 01010100 00100000 01000100 01000001 01001110 01010011 00100000 01001100 01000001 00100000 01001101 01000001 01010100 01010010 01001001 01000011 01000101</div>
+            <div class="hint">Indice: 8 bits = 1 caractère. Attention aux majuscules et espaces.</div>
+            <input type="text" id="answer-2" placeholder="Entrez votre réponse ici...">
+            <button onclick="checkAnswer(2)">Soumettre</button>
+        </div>
+        
+        <div id="level-3" class="challenge-box hidden">
+            <h2>Niveau 3: Chiffrement inversé</h2>
+            <p>Ce texte a été chiffré de façon particulière:</p>
+            <div class="cipher-text" id="cipher-3">3d1t 0n pr3nd l4 r0ut3</div>
+            <div class="hint">Indice: C'est un langage de "1337 speak" inversé. Remplacez les chiffres par les lettres correspondantes.</div>
+            <input type="text" id="answer-3" placeholder="Entrez votre réponse ici...">
+            <button onclick="checkAnswer(3)">Soumettre</button>
+        </div>
+        
+        <div id="level-4" class="challenge-box hidden">
+            <h2>Niveau 4: Chiffre de Vigenère</h2>
+            <p>Déchiffrez ce message avec le chiffre de Vigenère:</p>
+            <div class="cipher-text" id="cipher-4">LVPKTW FZGXT VE UVIEQL</div>
+            <div class="hint">Indice: La clé est "HACKER"</div>
+            <input type="text" id="answer-4" placeholder="Entrez votre réponse ici...">
+            <button onclick="checkAnswer(4)">Soumettre</button>
+        </div>
+        
+        <div id="level-5" class="challenge-box hidden">
+            <h2>Niveau 5: Énigme Finale</h2>
+            <p>Résolvez cette énigme pour terminer le défi:</p>
+            <div class="cipher-text" id="cipher-5">Je suis ce qui est caché et exposé à la fois,
+Ce que les hackers cherchent et protègent,
+Sans moi, pas d'accès ni de barrière,
+Que suis-je?</div>
+            <div class="hint">Indice: La réponse est un mot de 9 lettres essentiel en sécurité informatique.</div>
+            <input type="text" id="answer-5" placeholder="Entrez votre réponse ici...">
+            <button onclick="checkAnswer(5)">Soumettre</button>
+        </div>
+        
+        <div id="victory-screen" class="challenge-box hidden">
+            <h2>FÉLICITATIONS!</h2>
+            <p>Vous avez terminé le défi de déchiffrement hacker!</p>
+            <p>Temps total: <span id="final-time">00:00</span></p>
+            <p>Vous avez démontré vos compétences en cryptanalyse et avez accédé au système.</p>
+            <button onclick="resetGame()">Recommencer</button>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Variables globales
+        let startTime = Date.now();
+        let timerInterval;
+        let currentLevel = 1;
+        const totalLevels = 5;
+        
+        // Réponses correctes pour chaque niveau
+        const answers = {
+            1: "BRAVO TU AVANCES EN DECHIFFRANT CE MESSAGE",
+            2: "LE CODE EST DANS LA MATRICE",
+            3: "ET ON PREND LA ROUTE",
+            4: "DERNIERE ETAPE DU DEFI",
+            5: "MOT DE PASSE"
+        };
+        
+        // Initialisation du jeu
+        window.onload = function() {
+            initMatrixBackground();
+            startTimer();
+            updateProgressBar();
+        };
+        
+        // Vérification des réponses
+        function checkAnswer(level) {
+            const userAnswer = document.getElementById(`answer-${level}`).value.toUpperCase().trim();
+            const correctAnswer = answers[level];
+            
+            const challengeBox = document.getElementById(`level-${level}`);
+            
+            if (userAnswer === correctAnswer) {
+                // Réponse correcte
+                writeToTerminal(`Niveau ${level} complété! Accès au niveau suivant...`);
+                challengeBox.classList.add("success-flash");
+                
+                setTimeout(() => {
+                    challengeBox.classList.remove("success-flash");
+                    challengeBox.classList.add("hidden");
+                    
+                    if (level < totalLevels) {
+                        // Passer au niveau suivant
+                        currentLevel++;
+                        document.getElementById(`level-${currentLevel}`).classList.remove("hidden");
+                        document.getElementById("current-level").textContent = currentLevel;
+                    } else {
+                        // Victoire finale
+                        clearInterval(timerInterval);
+                        document.getElementById("final-time").textContent = document.getElementById("time-display").textContent;
+                        document.getElementById("victory-screen").classList.remove("hidden");
+                    }
+                    
+                    updateProgressBar();
+                }, 1000);
+            } else {
+                // Réponse incorrecte
+                writeToTerminal(`Erreur de déchiffrement au niveau ${level}. Accès refusé.`);
+                challengeBox.classList.add("shake");
+                setTimeout(() => challengeBox.classList.remove("shake"), 500);
+            }
+        }
+        
+        // Écrire dans le terminal
+        function writeToTerminal(text) {
+            const terminal = document.getElementById("terminal-output");
+            terminal.innerHTML += "\n" + text;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // Mise à jour de la barre de progression
+        function updateProgressBar() {
+            const progressPercent = ((currentLevel - 1) / totalLevels) * 100;
+            document.getElementById("progress-indicator").style.width = progressPercent + "%";
+        }
+        
+        // Gestion du timer
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, "0");
+            const seconds = (elapsedTime % 60).toString().padStart(2, "0");
+            document.getElementById("time-display").textContent = `${minutes}:${seconds}`;
+        }
+        
+        // Réinitialiser le jeu
+        function resetGame() {
+            // Cacher tous les niveaux et afficher le premier
+            for (let i = 1; i <= totalLevels; i++) {
+                document.getElementById(`level-${i}`).classList.add("hidden");
+                document.getElementById(`answer-${i}`).value = "";
+            }
+            document.getElementById("level-1").classList.remove("hidden");
+            document.getElementById("victory-screen").classList.add("hidden");
+            
+            // Réinitialiser le terminal
+            document.getElementById("terminal-output").innerHTML = "Réinitialisation du système de déchiffrement...\nConnexion au serveur sécurisé...\nAccès autorisé.\n------------------------\nBienvenue dans le défi de déchiffrement.\nRésolvez chaque niveau pour accéder aux données cryptées.\nBonne chance, hacker.\n------------------------";
+            
+            // Réinitialiser les variables
+            currentLevel = 1;
+            document.getElementById("current-level").textContent = currentLevel;
+            
+            // Réinitialiser le timer
+            clearInterval(timerInterval);
+            startTimer();
+            
+            // Mettre à jour la barre de progression
+            updateProgressBar();
+        }
+        
+        // Effet matrix en arrière-plan
+        function initMatrixBackground() {
+            const canvas = document.getElementById('matrix');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const characters = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const fontSize = 12;
+            const columns = canvas.width / fontSize;
+            
+            const drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+            }
+            
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = "#0f0";
+                ctx.font = fontSize + "px monospace";
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 33);
+        }
+    </script>
 </body>
 </html>
